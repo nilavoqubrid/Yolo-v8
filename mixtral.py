@@ -3,6 +3,7 @@ import torch
 import transformers
 from transformers import AutoModelForCausalLM, BitsAndBytesConfig, AutoTokenizer, GenerationConfig
 
+device = "cuda:1"
 
 def load_model(model_id):
     tokenizer = AutoTokenizer.from_pretrained(model_id, use_fast=True)
@@ -16,7 +17,7 @@ def load_model(model_id):
     model = AutoModelForCausalLM.from_pretrained(
         model_id,
         quantization_config=bnb_config,
-        device_map="auto"
+        device_map=device
         )
     return model, tokenizer
 
@@ -26,7 +27,7 @@ def generate_response(model, tokenizer, user_query, llm_new_tokens):
     prompt = user_query
     
     # Encode the input text
-    input_ids = tokenizer(prompt, return_tensors="pt").to('cuda')
+    input_ids = tokenizer(prompt, return_tensors="pt").to(device)
     # Generate response using the model
     generation_config = GenerationConfig(
         penalty_alpha=0.6, 
